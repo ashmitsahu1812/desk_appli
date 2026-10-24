@@ -1,0 +1,26 @@
+{
+  "name": "jalsuraksha-ne",
+  "version": "1.0.0",
+  "description": "Smart Community Health Monitoring and Early Warning System for Rural Northeast India",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "npm start"
+  },
+  "keywords": [
+    "electron",
+    "health-monitoring",
+    "northeast-india",
+    "water-quality",
+    "early-warning"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ashmitsahu1812/desk_appli.git"
+  },
+  "author": "Ashmit Sahu",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^30.0.0"
+  }
+}
