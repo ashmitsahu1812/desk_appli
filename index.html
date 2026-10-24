@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JalSuraksha‑NE Dashboard</title>
+  <!-- Tailwind CSS CDN (dark mode enabled) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Enable dark mode based on OS preference or user toggle later
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: 'hsl(200, 80%, 55%)',
+            safe: 'hsl(120, 70%, 40%)',
+            moderate: 'hsl(45, 85%, 45%)',
+            critical: 'hsl(0, 80%, 45%)',
+          },
+        },
+      },
+    };
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+  <style>
+    body {font-family: 'Inter', system-ui, sans-serif;}
+    .glass {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
+  <header class="p-4 flex items-center justify-between glass rounded-b-xl">
+    <h1 class="text-2xl font-semibold">JalSuraksha‑NE</h1>
+    <div class="flex items-center space-x-4">
+      <button id="addLogBtn" class="flex items-center gap-1 bg-primary hover:bg-primary/80 text-white px-3 py-1 rounded">
+        <i data-lucide="plus"></i> Add Health Log
+      </button>
+      <button id="exportBtn" class="flex items-center gap-1 bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded">
+        <i data-lucide="download"></i> Export CSV
+      </button>
+    </div>
+  </header>
+
+  <!-- Alert Banner -->
+  <div id="alertBanner" class="hidden p-3 text-center font-medium"></div>
+
+  <main class="flex-1 p-4 grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+    <!-- Station Cards -->
+    <section id="stations" class="col-span-1 lg:col-span-2 xl:col-span-2 grid gap-4 md:grid-cols-2 lg:grid-cols-3"></section>
+
+    <!-- Charts -->
+    <section class="space-y-6">
+      <canvas id="turbidityChart" class="bg-gray-800 rounded-lg p-2"></canvas>
+      <canvas id="phChart" class="bg-gray-800 rounded-lg p-2"></canvas>
+    </section>
+  </main>
+
+  <!-- Health Log Modal -->
+  <dialog id="logModal" class="rounded-lg glass p-6 w-96">
+    <form method="dialog" class="space-y-4" id="logForm">
+      <h2 class="text-xl font-medium">New Health Log</h2>
+      <div>
+        <label class="block mb-1" for="stationSelect">Station</label>
+        <select id="stationSelect" class="w-full bg-gray-700 rounded px-2 py-1" required></select>
+      </div>
+      <div>
+        <label class="block mb-1" for="casesInput">Acute Gastroenteritis Cases</label>
+        <input type="number" id="casesInput" min="0" class="w-full bg-gray-700 rounded px-2 py-1" required />
+      </div>
+      <div class="flex justify-end space-x-2">
+        <button type="reset" class="px-3 py-1 bg-gray-600 rounded">Cancel</button>
+        <button type="submit" class="px-3 py-1 bg-primary rounded text-white">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    // Activate Lucide icons
+    lucide.createIcons();
+  </script>
+  <script src="renderer.js"></script>
+</body>
+</html>
