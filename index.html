@@ -1,89 +1,528 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="dark h-full">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JalSuraksha‑NE Dashboard</title>
-  <!-- Tailwind CSS CDN (dark mode enabled) -->
+  <title>JalSuraksha-NE | Smart Community Water & Health Surveillance</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // Enable dark mode based on OS preference or user toggle later
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          colors: {
-            primary: 'hsl(200, 80%, 55%)',
-            safe: 'hsl(120, 70%, 40%)',
-            moderate: 'hsl(45, 85%, 45%)',
-            critical: 'hsl(0, 80%, 45%)',
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
           },
+          colors: {
+            brand: {
+              50: '#ecfeff',
+              100: '#cffafe',
+              400: '#22d3ee',
+              500: '#06b6d4',
+              600: '#0891b2',
+              900: '#164e63',
+            },
+            surface: {
+              800: '#111827',
+              850: '#0f172a',
+              900: '#0b1120',
+              950: '#060a13',
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'radar': 'radar 2s linear infinite',
+          },
+          keyframes: {
+            radar: {
+              '0%': { transform: 'scale(0.8)', opacity: '0.8' },
+              '100%': { transform: 'scale(2.2)', opacity: '0' },
+            }
+          }
         },
       },
     };
   </script>
-  <!-- Lucide Icons -->
-  <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+  
+  <!-- Lucide Icons & Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
   <style>
-    body {font-family: 'Inter', system-ui, sans-serif;}
-    .glass {
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(12px);
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(51, 65, 85, 0.8);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 1);
+    }
+
+    .glass-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.65) 0%, rgba(15, 23, 42, 0.75) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .glass-card-hover {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card-hover:hover {
+      border-color: rgba(6, 182, 212, 0.35);
+      box-shadow: 0 12px 36px -4px rgba(6, 182, 212, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .neon-glow-cyan {
+      box-shadow: 0 0 20px -3px rgba(6, 182, 212, 0.4);
+    }
+
+    .neon-glow-rose {
+      box-shadow: 0 0 20px -3px rgba(244, 63, 94, 0.4);
     }
   </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
-  <header class="p-4 flex items-center justify-between glass rounded-b-xl">
-    <h1 class="text-2xl font-semibold">JalSuraksha‑NE</h1>
+
+<body class="bg-surface-900 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-brand-500 selection:text-white antialiased overflow-x-hidden">
+
+  <!-- Top App Navigation Bar -->
+  <header class="sticky top-0 z-40 bg-surface-900/80 backdrop-blur-xl border-b border-slate-800/80 px-6 py-3.5 flex items-center justify-between">
     <div class="flex items-center space-x-4">
-      <button id="addLogBtn" class="flex items-center gap-1 bg-primary hover:bg-primary/80 text-white px-3 py-1 rounded">
-        <i data-lucide="plus"></i> Add Health Log
+      <div class="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-tr from-cyan-600 to-teal-400 text-white shadow-lg shadow-cyan-500/20">
+        <i data-lucide="droplets" class="w-6 h-6 animate-pulse-slow"></i>
+        <div class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-surface-900"></div>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-cyan-300 bg-clip-text text-transparent">
+            JalSuraksha-NE
+          </h1>
+          <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-800/60">
+            Northeast Rural Hub v1.2
+          </span>
+        </div>
+        <p class="text-xs text-slate-400">Smart Community Water Quality & Epidemic Early Warning Network</p>
+      </div>
+    </div>
+
+    <!-- Live Telemetry Pulse & Actions -->
+    <div class="flex items-center space-x-3">
+      <!-- Live Status Pill -->
+      <div class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-800/70 border border-slate-700/60 text-xs">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="font-mono text-slate-300" id="liveClock">--:--:--</span>
+        <span class="text-slate-500">|</span>
+        <span class="text-emerald-400 font-medium">IoT Stream Online</span>
+      </div>
+
+      <!-- Quick Contamination Spike Simulator Button -->
+      <button id="simulateSpikeBtn" title="Test Early Warning System" class="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition-all">
+        <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i>
+        <span>Simulate Spike</span>
       </button>
-      <button id="exportBtn" class="flex items-center gap-1 bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded">
-        <i data-lucide="download"></i> Export CSV
+
+      <!-- Add Health Log Button -->
+      <button id="addLogBtn" class="flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-white shadow-md shadow-cyan-500/20 transition-all transform active:scale-95">
+        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+        <span>Record Incident</span>
       </button>
+
+      <!-- Export Dropdown -->
+      <div class="relative group">
+        <button id="exportDropdownBtn" class="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span>Export</span>
+          <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+        </button>
+        <div class="absolute right-0 mt-1 w-36 rounded-xl bg-slate-800/95 border border-slate-700 shadow-xl hidden group-hover:block z-50 py-1">
+          <button id="exportCsvBtn" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 flex items-center gap-2">
+            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-400"></i> Export CSV
+          </button>
+          <button id="exportJsonBtn" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/80 flex items-center gap-2">
+            <i data-lucide="file-code" class="w-3.5 h-3.5 text-cyan-400"></i> Export JSON
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 
-  <!-- Alert Banner -->
-  <div id="alertBanner" class="hidden p-3 text-center font-medium"></div>
+  <!-- Navigation Tabs -->
+  <nav class="bg-surface-850/90 border-b border-slate-800/80 px-6 py-2 flex items-center justify-between overflow-x-auto">
+    <div class="flex items-center space-x-1 sm:space-x-2 text-xs font-medium">
+      <button class="nav-tab active flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all bg-brand-500/15 text-brand-400 border border-brand-500/30" data-tab="tab-overview">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        <span>Overview & Telemetry</span>
+      </button>
+      <button class="nav-tab flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" data-tab="tab-stations">
+        <i data-lucide="radio" class="w-4 h-4"></i>
+        <span>Station Hubs</span>
+        <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-800 text-slate-300" id="tabStationCount">6</span>
+      </button>
+      <button class="nav-tab flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" data-tab="tab-health">
+        <i data-lucide="heart-pulse" class="w-4 h-4"></i>
+        <span>Community Health</span>
+        <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-rose-950/70 text-rose-300 border border-rose-800/50" id="tabHealthCaseCount">0</span>
+      </button>
+      <button class="nav-tab flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" data-tab="tab-alerts">
+        <i data-lucide="bell" class="w-4 h-4"></i>
+        <span>Active Alerts</span>
+        <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-950/80 text-amber-300 border border-amber-800/60" id="tabAlertCount">0</span>
+      </button>
+    </div>
 
-  <main class="flex-1 p-4 grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-    <!-- Station Cards -->
-    <section id="stations" class="col-span-1 lg:col-span-2 xl:col-span-2 grid gap-4 md:grid-cols-2 lg:grid-cols-3"></section>
+    <!-- Active Filter or Refresh info -->
+    <div class="hidden md:flex items-center gap-2 text-xs text-slate-400">
+      <i data-lucide="shield-check" class="w-3.5 h-3.5 text-cyan-400"></i>
+      <span>Jal Jeevan Mission Standard Adherent</span>
+    </div>
+  </nav>
 
-    <!-- Charts -->
-    <section class="space-y-6">
-      <canvas id="turbidityChart" class="bg-gray-800 rounded-lg p-2"></canvas>
-      <canvas id="phChart" class="bg-gray-800 rounded-lg p-2"></canvas>
-    </section>
+  <!-- Risk Assessment Banner (Dynamic) -->
+  <div id="riskBanner" class="mx-6 mt-4 p-3.5 rounded-xl border flex items-center justify-between text-xs transition-all duration-300 bg-emerald-950/40 border-emerald-800/50 text-emerald-200">
+    <div class="flex items-center gap-3">
+      <div id="riskIconContainer" class="p-2 rounded-lg bg-emerald-500/20 text-emerald-300">
+        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+      </div>
+      <div>
+        <p class="font-semibold text-sm" id="riskTitle">All Rural Water Supply Zones Within Safe Thresholds</p>
+        <p class="text-slate-400" id="riskDescription">Real-time parameters across Assam, Meghalaya, and Manipur reflect normal ranges.</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-medium uppercase bg-emerald-900/60 border border-emerald-700/60 text-emerald-300" id="riskBadge">
+        Normal Status
+      </span>
+    </div>
+  </div>
+
+  <!-- KPI Metrics Banner -->
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-4 px-6 mt-4">
+    <!-- Regional WQI -->
+    <div class="glass-card glass-card-hover p-4 rounded-2xl relative overflow-hidden">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Water Quality Index</span>
+        <div class="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
+          <i data-lucide="activity" class="w-4 h-4"></i>
+        </div>
+      </div>
+      <div class="mt-2 flex items-baseline gap-2">
+        <span class="text-3xl font-extrabold text-white font-mono" id="statWQI">78</span>
+        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800" id="statWQIGrade">Good</span>
+      </div>
+      <div class="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
+        <div id="statWQIBars" class="h-full bg-gradient-to-r from-cyan-500 to-teal-400 rounded-full transition-all duration-500" style="width: 78%"></div>
+      </div>
+    </div>
+
+    <!-- Active Monitored Stations -->
+    <div class="glass-card glass-card-hover p-4 rounded-2xl relative overflow-hidden">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Monitored Stations</span>
+        <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+          <i data-lucide="radio" class="w-4 h-4"></i>
+        </div>
+      </div>
+      <div class="mt-2 flex items-baseline gap-2">
+        <span class="text-3xl font-extrabold text-white font-mono" id="statStations">6 / 6</span>
+        <span class="text-xs text-emerald-400 flex items-center gap-1 font-medium">
+          <i data-lucide="check" class="w-3 h-3"></i> 100% Online
+        </span>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-3">Telemetry packets every 4.5s</p>
+    </div>
+
+    <!-- Community Health Cases -->
+    <div class="glass-card glass-card-hover p-4 rounded-2xl relative overflow-hidden">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Health Incidents</span>
+        <div class="p-2 rounded-xl bg-rose-500/10 text-rose-400">
+          <i data-lucide="stethoscope" class="w-4 h-4"></i>
+        </div>
+      </div>
+      <div class="mt-2 flex items-baseline gap-2">
+        <span class="text-3xl font-extrabold text-white font-mono" id="statCases">0</span>
+        <span class="text-xs text-slate-400">reported</span>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-3" id="statCasesTrend">Acute gastroenteritis tracking</p>
+    </div>
+
+    <!-- Active Alerts -->
+    <div class="glass-card glass-card-hover p-4 rounded-2xl relative overflow-hidden">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Active Alerts</span>
+        <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+          <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+        </div>
+      </div>
+      <div class="mt-2 flex items-baseline gap-2">
+        <span class="text-3xl font-extrabold text-white font-mono" id="statAlerts">0</span>
+        <span class="text-xs text-amber-400 font-medium" id="statAlertSeverity">Normal Range</span>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-3">Automatic WHO/BIS Thresholds</p>
+    </div>
+  </section>
+
+  <!-- TAB CONTENT CONTAINER -->
+  <main class="flex-1 px-6 py-4 flex flex-col space-y-6">
+
+    <!-- ==================== TAB 1: OVERVIEW & TELEMETRY ==================== -->
+    <div id="tab-overview" class="tab-panel space-y-6">
+      
+      <!-- Top Station Quick Carousel / Pills -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-semibold tracking-wide text-slate-300 uppercase flex items-center gap-2">
+            <i data-lucide="map-pin" class="w-4 h-4 text-cyan-400"></i>
+            Regional Monitoring Stations (Live Stream)
+          </h2>
+          <span class="text-xs text-slate-400">Click a station to filter graphs</span>
+        </div>
+        <div id="stationsSummaryRow" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <!-- Station quick pills dynamically generated here -->
+        </div>
+      </div>
+
+      <!-- Real-Time Charts Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Turbidity Trend Chart -->
+        <div class="glass-card p-5 rounded-2xl flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                Water Turbidity (NTU)
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">Threshold: Safe &lt; 5.0 NTU | Critical &gt; 8.0 NTU</p>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs font-mono px-2.5 py-1 rounded-lg bg-amber-950/60 text-amber-300 border border-amber-800/40">
+              <i data-lucide="waves" class="w-3.5 h-3.5"></i>
+              <span id="latestTurbidityValue">-- NTU</span>
+            </div>
+          </div>
+          <div class="relative flex-1 min-h-[220px]">
+            <canvas id="turbidityChart"></canvas>
+          </div>
+        </div>
+
+        <!-- pH Level Trend Chart -->
+        <div class="glass-card p-5 rounded-2xl flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                pH Balance Level
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">Permissible Drinking Range: 6.5 – 8.5 pH</p>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs font-mono px-2.5 py-1 rounded-lg bg-cyan-950/60 text-cyan-300 border border-cyan-800/40">
+              <i data-lucide="gauge" class="w-3.5 h-3.5"></i>
+              <span id="latestPhValue">-- pH</span>
+            </div>
+          </div>
+          <div class="relative flex-1 min-h-[220px]">
+            <canvas id="phChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Dissolved Oxygen & TDS Dual Chart -->
+        <div class="glass-card p-5 rounded-2xl flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-teal-400"></span>
+                Dissolved Oxygen (DO mg/L)
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">Min Health Standard: &gt; 4.0 mg/L</p>
+            </div>
+            <span class="text-xs font-mono text-teal-300 px-2 py-0.5 bg-teal-950/60 border border-teal-800/40 rounded-md" id="latestDoValue">-- mg/L</span>
+          </div>
+          <div class="relative flex-1 min-h-[200px]">
+            <canvas id="doChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Water Quality Index Radar / Breakdown -->
+        <div class="glass-card p-5 rounded-2xl flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
+                Station Parameter Matrix
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">Real-time normalized sensor indicators</p>
+            </div>
+            <span class="text-xs text-indigo-300 font-mono px-2 py-0.5 bg-indigo-950/60 border border-indigo-800/40 rounded-md">Live Sensors</span>
+          </div>
+          <div class="relative flex-1 min-h-[200px]">
+            <canvas id="matrixChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TAB 2: STATION HUBS ==================== -->
+    <div id="tab-stations" class="tab-panel hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-white">Northeast Rural Monitoring Network</h2>
+          <p class="text-xs text-slate-400">Automated sensor telemetry installed in high-vulnerability riverine & hill districts</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="text" id="stationSearch" placeholder="Search station or district..." class="px-3 py-1.5 text-xs bg-slate-800 border border-slate-700 rounded-lg text-slate-200 focus:outline-none focus:border-cyan-500 w-56" />
+        </div>
+      </div>
+
+      <div id="stationsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <!-- Detailed station cards dynamically populated here -->
+      </div>
+    </div>
+
+    <!-- ==================== TAB 3: COMMUNITY HEALTH ==================== -->
+    <div id="tab-health" class="tab-panel hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-white">Community Epidemiological Surveillance</h2>
+          <p class="text-xs text-slate-400">Field logs collected via ASHA community health workers and rural primary health centres</p>
+        </div>
+        <button id="addLogBtn2" class="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-white shadow-sm transition-all">
+          <i data-lucide="plus" class="w-4 h-4"></i> Log New Case
+        </button>
+      </div>
+
+      <!-- Health Incidents Table -->
+      <div class="glass-card rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-800/80 text-slate-400 uppercase tracking-wider text-[11px] border-b border-slate-700/60 font-semibold">
+              <tr>
+                <th class="px-5 py-3.5">Station / Village</th>
+                <th class="px-5 py-3.5">Reported Cases</th>
+                <th class="px-5 py-3.5">Symptoms Profile</th>
+                <th class="px-5 py-3.5">Severity Risk</th>
+                <th class="px-5 py-3.5">Reported At</th>
+                <th class="px-5 py-3.5">Clinical Notes</th>
+              </tr>
+            </thead>
+            <tbody id="healthLogsTableBody" class="divide-y divide-slate-800">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TAB 4: ACTIVE ALERTS ==================== -->
+    <div id="tab-alerts" class="tab-panel hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-white">Early Warning & Anomaly Dispatch</h2>
+          <p class="text-xs text-slate-400">Automated alerts triggered when water parameters exceed safety thresholds</p>
+        </div>
+        <span class="text-xs text-slate-400" id="alertsCountLabel">0 active warnings</span>
+      </div>
+
+      <div id="alertsContainer" class="space-y-3">
+        <!-- Alert cards populated dynamically -->
+      </div>
+    </div>
+
   </main>
 
-  <!-- Health Log Modal -->
-  <dialog id="logModal" class="rounded-lg glass p-6 w-96">
+  <!-- MODAL: ADD HEALTH LOG -->
+  <dialog id="logModal" class="rounded-2xl glass-card p-6 w-full max-w-md backdrop:bg-black/60 shadow-2xl text-slate-100 border border-slate-700/70">
     <form method="dialog" class="space-y-4" id="logForm">
-      <h2 class="text-xl font-medium">New Health Log</h2>
-      <div>
-        <label class="block mb-1" for="stationSelect">Station</label>
-        <select id="stationSelect" class="w-full bg-gray-700 rounded px-2 py-1" required></select>
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="p-1.5 rounded-lg bg-cyan-500/20 text-cyan-400">
+            <i data-lucide="clipboard-plus" class="w-4 h-4"></i>
+          </div>
+          <h2 class="text-base font-bold text-white">Log Community Health Event</h2>
+        </div>
+        <button type="button" id="closeModalBtn" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
       </div>
+
       <div>
-        <label class="block mb-1" for="casesInput">Acute Gastroenteritis Cases</label>
-        <input type="number" id="casesInput" min="0" class="w-full bg-gray-700 rounded px-2 py-1" required />
+        <label class="block text-xs font-medium text-slate-300 mb-1" for="stationSelect">Monitoring Station / Village Hub</label>
+        <select id="stationSelect" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500" required></select>
       </div>
-      <div class="flex justify-end space-x-2">
-        <button type="reset" class="px-3 py-1 bg-gray-600 rounded">Cancel</button>
-        <button type="submit" class="px-3 py-1 bg-primary rounded text-white">Save</button>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1" for="casesInput">Affected Persons</label>
+          <input type="number" id="casesInput" min="1" value="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500 font-mono" required />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1" for="severitySelect">Severity Classification</label>
+          <select id="severitySelect" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
+            <option value="mild">Mild (Outpatient)</option>
+            <option value="moderate" selected>Moderate (Dehydration)</option>
+            <option value="critical">Critical (Hospitalized)</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1" for="symptomsInput">Primary Symptoms Observed</label>
+        <select id="symptomsInput" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
+          <option value="Acute Gastroenteritis">Acute Gastroenteritis (AGE)</option>
+          <option value="Diarrheal Illness & Vomiting">Diarrheal Illness & Vomiting</option>
+          <option value="Suspected Waterborne Typhoid">Suspected Waterborne Typhoid</option>
+          <option value="Abdominal Cramping & Fever">Abdominal Cramping & Fever</option>
+          <option value="Skin Rashes / Water Irritation">Skin Rashes / Water Irritation</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1" for="notesInput">Field Notes / Water Source Details</label>
+        <textarea id="notesInput" rows="2" placeholder="e.g. Community well contaminated after flash flood..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500"></textarea>
+      </div>
+
+      <div class="flex justify-end space-x-2 pt-2 border-t border-slate-800">
+        <button type="button" id="cancelModalBtn" class="px-3.5 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300">Cancel</button>
+        <button type="submit" class="px-4 py-1.5 text-xs font-semibold bg-cyan-500 hover:bg-cyan-400 text-white rounded-lg shadow-md shadow-cyan-500/20">Submit Record</button>
       </div>
     </form>
   </dialog>
 
-  <script>
-    // Activate Lucide icons
-    lucide.createIcons();
-  </script>
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- Footer -->
+  <footer class="bg-surface-950 border-t border-slate-800/80 px-6 py-3 flex items-center justify-between text-[11px] text-slate-500">
+    <div class="flex items-center gap-2">
+      <i data-lucide="radio-tower" class="w-3.5 h-3.5 text-cyan-500"></i>
+      <span>JalSuraksha-NE Node v1.2 &bull; Assam, Meghalaya, Arunachal Pradesh & Manipur</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <span>Offline First Architecture</span>
+      <span>&bull;</span>
+      <span>Encrypted Local Storage</span>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
   <script src="renderer.js"></script>
 </body>
 </html>
