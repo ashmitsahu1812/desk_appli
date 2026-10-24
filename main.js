@@ -27,19 +27,33 @@ function createWindow() {
     height: 880,
     minWidth: 1024,
     minHeight: 700,
+    title: 'JalSuraksha-NE',
     backgroundColor: '#0b1120',
-    titleBarStyle: 'hiddenInset',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
-    show: false,
+    show: true,
   });
 
   mainWindow.loadFile('index.html');
+
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
+    mainWindow.focus();
+    if (process.platform === 'darwin' && app.dock) {
+      app.dock.show();
+      app.dock.focus();
+    }
+  });
+
+  mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    console.log(`[Renderer Log] ${message}`);
+  });
+
+  mainWindow.webContents.on('did-fail-load', (e, code, desc) => {
+    console.error(`[Renderer Error] Failed to load index.html: ${desc} (code: ${code})`);
   });
 }
 
