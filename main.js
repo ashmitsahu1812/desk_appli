@@ -44,8 +44,8 @@ function createWindow() {
     mainWindow.focus();
     if (process.platform === 'darwin' && app.dock) {
       app.dock.show();
-      app.dock.focus();
     }
+    app.focus({ steal: true });
   });
 
   mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {

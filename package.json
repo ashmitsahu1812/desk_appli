@@ -1,6 +1,6 @@
 {
   "name": "jalsuraksha-ne",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Smart Community Health Monitoring and Early Warning System for Rural Northeast India",
   "main": "main.js",
   "scripts": {
